@@ -1,18 +1,26 @@
 import React, { useEffect, useState } from 'react'
 import { useDebounce } from '../hooks/debounce'
-import { useSearchUsersQuery } from '../store/github/github.api'
+import { useSearchUsersQuery, useLazyGetUserReposQuery } from '../store/github/github.api'
 
 function HomePage() {
   const [search, setSearch] = useState('')
   const [dropdown, setDropdown] = useState(false)
   const debounced = useDebounce(search)
   const {isLoading, isError, data} = useSearchUsersQuery(debounced, {
-    skip: debounced.length < 3
+    skip: debounced.length < 3,
+    refetchOnFocus: true
   })
+
+  const [fetchRepos, { }] = useLazyGetUserReposQuery()
 
   useEffect(() => {
     setDropdown(debounced.length > 3 && data?.length! > 0)
   }, [debounced, data])
+
+  const clickHandler = (username: string) => {
+    console.log(username);
+    
+  }
   
   return (
     <div className='flex justify-center pt-10 mx-auto h-screen w-screen'>
@@ -31,6 +39,7 @@ function HomePage() {
           { data?.map(user=>  (
             <li
               key={user.id}
+              onClick={() => clickHandler(user.login)}
               className='py-2 px-4 hover:bg-gray-500 hover:text-white transition-colors cursor-pointer'
             >{ user.login }</li>
           )) }
