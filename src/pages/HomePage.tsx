@@ -11,15 +11,14 @@ function HomePage() {
     refetchOnFocus: true
   })
 
-  const [fetchRepos, { }] = useLazyGetUserReposQuery()
+  const [fetchRepos, { isLoading: areReposLoading, data: repos }] = useLazyGetUserReposQuery()
 
   useEffect(() => {
     setDropdown(debounced.length > 3 && data?.length! > 0)
   }, [debounced, data])
 
   const clickHandler = (username: string) => {
-    console.log(username);
-    
+    fetchRepos(username);
   }
   
   return (
@@ -44,6 +43,10 @@ function HomePage() {
             >{ user.login }</li>
           )) }
         </ul> }
+        <div className="container">
+        { areReposLoading && <p className='text-center'>Repos are loading...</p> }
+        { repos?.map(repo => <p>{repo.url}</p>) }
+        </div>
       </div>
     </div>
   )
